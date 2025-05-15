@@ -2,7 +2,7 @@ package wecom
 
 import (
 	"bytes"
-	"message_center/input/prometheus"
+	"message_center/plugins/input/prometheus"
 
 	botApi "github.com/electricbubble/wecom-bot-api"
 	"github.com/electricbubble/wecom-bot-api/md"

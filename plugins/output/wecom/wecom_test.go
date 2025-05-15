@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"message_center/input/prometheus"
+	"message_center/plugins/input/prometheus"
 	"os"
 	"reflect"
 	"testing"
