@@ -62,6 +62,7 @@ func main() {
 			content.WriteString(md.QuoteText("命名空间:" + md.CommentText(alert.Labels.Namespace)))
 			content.WriteString(md.QuoteText("服务器节点:" + md.CommentText(alert.Labels.Node)))
 			content.WriteString(md.QuoteText("pod名称:" + md.CommentText(alert.Labels.Pod)))
+			content.WriteString(md.QuoteText("状态:" + md.CommentText(alert.Status)))
 			content.WriteString("\n")
 		}
 		logger.Info("Formatted markdown message content",
