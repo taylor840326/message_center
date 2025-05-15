@@ -5,7 +5,7 @@ WORKDIR /
 ADD . /app/
 
 RUN cd /app && \
-    go build main.go -o main
+    go build main.go
 
 ENTRYPOINT [ "/app/main" ]
 
