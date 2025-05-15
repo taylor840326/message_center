@@ -38,9 +38,9 @@ func main() {
 		for _, alert := range alerts {
 
 			content.WriteString("标题: " + alert.Annotations.Summary + " \n")
-			content.WriteString(md.QuoteText("命名空间:" + md.CommentText("用户反馈")))
-			content.WriteString(md.QuoteText("服务器节点:" + md.CommentText("117例")))
-			content.WriteString(md.QuoteText("pod名称:" + md.CommentText("15例")))
+			content.WriteString(md.QuoteText("命名空间:" + md.CommentText(alert.Labels.Namespace)))
+			content.WriteString(md.QuoteText("服务器节点:" + md.CommentText(alert.Labels.Node)))
+			content.WriteString(md.QuoteText("pod名称:" + md.CommentText(alert.Labels.Pod)))
 			content.WriteString("\n")
 		}
 		_ = bot.PushMarkdownMessage(content.String())
