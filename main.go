@@ -67,7 +67,12 @@ func main() {
 		}
 		logger.Info("Formatted markdown message content",
 			zap.String("content", content.String()))
-		_ = bot.PushMarkdownMessage(content.String())
+		err = bot.PushMarkdownMessage(content.String())
+		if err != nil {
+			logger.Error("Failed to send message to wecom",
+				zap.Error(err),
+			)
+		}
 
 		c.JSON(200, "ok")
 	})
