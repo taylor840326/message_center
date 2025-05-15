@@ -58,7 +58,7 @@ func main() {
 		// We'll format these into a readable message with namespace, node, and pod info
 		content := bytes.NewBufferString("")
 		for _, alert := range alerts {
-			content.WriteString("标题: " + alert.Annotations.Summary + " \n")
+			content.WriteString("标题: " + alert.Annotations.Description + " \n")
 			content.WriteString(md.QuoteText("命名空间: " + md.CommentText(alert.Labels.Namespace)))
 			content.WriteString(md.QuoteText("服务器节点: " + md.CommentText(alert.Labels.Node)))
 			content.WriteString(md.QuoteText("pod名称: " + md.CommentText(alert.Labels.Pod)))
