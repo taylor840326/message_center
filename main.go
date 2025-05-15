@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
+	"message_center/input/prometheus"
 
 	botApi "github.com/electricbubble/wecom-bot-api"
 	"github.com/electricbubble/wecom-bot-api/md"
@@ -14,26 +17,32 @@ func main() {
 	r := gin.Default()
 	r.POST("/adapter/wx", func(c *gin.Context) {
 		body, _ := io.ReadAll(c.Request.Body)
-		println(string(body))
+		fmt.Println(string(body))
+
+		alertMessage := prometheus.AlertMessage{}
+		err := json.Unmarshal(body, &alertMessage)
+		if err != nil {
+			fmt.Println(err.Error())
+			c.JSON(500, err.Error())
+		}
+
 		botKey := "a15aeacd-2f81-49e7-ad90-2293f1a086d5" // 只填 key= 后边的内容
-
 		bot := botApi.NewWeComBot(botKey)
+		alerts := alertMessage.Alerts
 
-		content := bytes.NewBufferString(md.Heading(1, "H1"))
-		content.WriteString("实时新增用户反馈" + md.WarningText("132例") + "，请相关同事注意。\n")
-		content.WriteString(md.QuoteText("类型:" + md.CommentText("用户反馈")))
-		content.WriteString(md.QuoteText("普通用户反馈:" + md.CommentText("117例")))
-		content.WriteString(md.QuoteText("VIP用户反馈:" + md.CommentText("15例")))
-		// 👆效果等同于👇
-		/*
-			# H1
-			实时新增用户反馈 <font color="warning">132例</font>，请相关同事注意。\n
-			> 类型:<font color="comment">用户反馈</font>
-			> 普通用户反馈:<font color="comment">117例</font>
-			> VIP用户反馈:<font color="comment">15例</font>
-		*/
+		content := bytes.NewBufferString("")
+		if len(alerts) == 0 {
+			c.JSON(500, "收到的报警消息内容为空")
+		}
 
-		// 仅发送 `markdown` 格式的文本
+		for _, alert := range alerts {
+
+			content.WriteString("标题: " + alert.Annotations.Summary + " \n")
+			content.WriteString(md.QuoteText("命名空间:" + md.CommentText("用户反馈")))
+			content.WriteString(md.QuoteText("服务器节点:" + md.CommentText("117例")))
+			content.WriteString(md.QuoteText("pod名称:" + md.CommentText("15例")))
+			content.WriteString("\n")
+		}
 		_ = bot.PushMarkdownMessage(content.String())
 		c.JSON(200, "ok")
 	})
