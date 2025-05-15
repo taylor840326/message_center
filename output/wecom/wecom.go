@@ -8,19 +8,16 @@ import (
 	"github.com/electricbubble/wecom-bot-api/md"
 )
 
-func SendWeComMessage(message prometheus.AlertMessage) {
-	botKey := "a15aeacd-2f81-49e7-ad90-2293f1a086d5" // 只填 key= 后边的内容
+func SendWecomMessage(msg prometheus.AlertMessage) {
+	botKey := "WeCom_Bot_Key" // 只填 key= 后边的内容
 
 	bot := botApi.NewWeComBot(botKey)
 
-	alerts := message.Alerts
-	for _, alertItem := range alerts {
-		labels := alertItem.Labels
-		print(labels)
-		content := bytes.NewBufferString(md.Heading(1, "数据库报警"))
-		content.WriteString("实时新增用户反馈" + md.WarningText("132例") + "，请相关同事注意。\n")
-
-	}
+	content := bytes.NewBufferString(md.Heading(1, "H1"))
+	content.WriteString("实时新增用户反馈" + md.WarningText("132例") + "，请相关同事注意。\n")
+	content.WriteString(md.QuoteText("类型:" + md.CommentText("用户反馈")))
+	content.WriteString(md.QuoteText("普通用户反馈:" + md.CommentText("117例")))
+	content.WriteString(md.QuoteText("VIP用户反馈:" + md.CommentText("15例")))
 	// 👆效果等同于👇
 	/*
 		# H1
@@ -32,5 +29,4 @@ func SendWeComMessage(message prometheus.AlertMessage) {
 
 	// 仅发送 `markdown` 格式的文本
 	_ = bot.PushMarkdownMessage(content.String())
-
 }
