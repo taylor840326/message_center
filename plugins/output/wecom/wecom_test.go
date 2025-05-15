@@ -18,7 +18,7 @@ func TestXxx(t *testing.T) {
 		os.Exit(1)
 	}
 
-	message := prometheus.AlertMessage{}
+	message := prometheus.PrometheusAlertMessage{}
 	err = json.Unmarshal(c, &message)
 	if err != nil {
 		fmt.Println(err.Error())

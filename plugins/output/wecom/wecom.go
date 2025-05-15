@@ -2,31 +2,40 @@ package wecom
 
 import (
 	"bytes"
-	"message_center/plugins/input/prometheus"
 
 	botApi "github.com/electricbubble/wecom-bot-api"
-	"github.com/electricbubble/wecom-bot-api/md"
 )
 
-func SendWecomMessage(msg prometheus.AlertMessage) {
-	botKey := "WeCom_Bot_Key" // 只填 key= 后边的内容
+func SendWecomMessage() {
+	bot := botApi.NewWeComBot("")
+	alerts := ""
+	if len(alerts) == 0 {
+	}
 
-	bot := botApi.NewWeComBot(botKey)
-
-	content := bytes.NewBufferString(md.Heading(1, "H1"))
-	content.WriteString("实时新增用户反馈" + md.WarningText("132例") + "，请相关同事注意。\n")
-	content.WriteString(md.QuoteText("类型:" + md.CommentText("用户反馈")))
-	content.WriteString(md.QuoteText("普通用户反馈:" + md.CommentText("117例")))
-	content.WriteString(md.QuoteText("VIP用户反馈:" + md.CommentText("15例")))
-	// 👆效果等同于👇
-	/*
-		# H1
-		实时新增用户反馈 <font color="warning">132例</font>，请相关同事注意。\n
-		> 类型:<font color="comment">用户反馈</font>
-		> 普通用户反馈:<font color="comment">117例</font>
-		> VIP用户反馈:<font color="comment">15例</font>
-	*/
-
-	// 仅发送 `markdown` 格式的文本
+	// Process alerts and format them into markdown message
+	// Each alert contains annotations and labels with details about the alert
+	// We'll format these into a readable message with namespace, node, and pod info
+	content := bytes.NewBufferString("")
+	// for _, alert := range alerts {
+	// 	if len(content.String()) > 4000 {
+	// 		content.WriteString(md.QuoteText("更多: " + md.CommentText("更多信息请查看日志")))
+	// 		content.WriteString("\n")
+	// 		continue
+	// 	}
+	// content.WriteString("标题: " + alert.Annotations.Description + " \n")
+	// content.WriteString(md.QuoteText("命名空间: " + md.CommentText(alert.Labels.Namespace)))
+	// content.WriteString(md.QuoteText("服务器节点: " + md.CommentText(alert.Labels.Node)))
+	// content.WriteString(md.QuoteText("pod名称: " + md.CommentText(alert.Labels.Pod)))
+	// switch alert.Status {
+	// case "firing":
+	// 	content.WriteString(md.QuoteText("状态: " + md.WarningText(alert.Status)))
+	// case "resolved":
+	// 	content.WriteString(md.QuoteText("状态: " + md.InfoText(alert.Status)))
+	// default:
+	// 	content.WriteString(md.QuoteText("状态: " + md.CommentText(alert.Status)))
+	// }
+	// 	content.WriteString("\n")
+	// }
 	_ = bot.PushMarkdownMessage(content.String())
+
 }

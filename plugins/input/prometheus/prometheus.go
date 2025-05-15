@@ -1,21 +1,14 @@
 package prometheus
 
+import (
+	"encoding/json"
+	"message_center/message"
+	"message_center/utils"
+	"time"
+)
+
 // labels
-type Labels struct {
-	AlertName                     string `json:"alertname"`
-	AppKubernetesIOComponent      string `json:"app_kubernetes_io_component"`
-	AppKubernetesIOInstance       string `json:"app_kubernetes_io_instance"`
-	AppKubernetesIOManagedBy      string `json:"app_kubernetes_io_managed_by"`
-	AppKubernetesIOName           string `json:"app_kubernetes_io_name"`
-	AppsKubeblocksIOComponentName string `json:"apps_kubeblocks_io_component_name"`
-	Instance                      string `json:"instance"`
-	Job                           string `json:"job"`
-	Namespace                     string `json:"namespace"`
-	Node                          string `json:"node"`
-	Pod                           string `json:"pod"`
-	Service                       string `json:"service"`
-	Severity                      string `json:"severity"`
-}
+type Labels map[string]string
 
 type Annotations struct {
 	Description string `json:"description"`
@@ -31,6 +24,48 @@ type AlertItem struct {
 	FingerPrint string      `json:"fingerprint"`
 }
 
-type AlertMessage struct {
+type PrometheusAlertMessage struct {
 	Alerts []AlertItem `json:"alerts"`
+}
+
+func (prom *AlertItem) ToString() (string, error) {
+	val, err := json.Marshal(prom)
+	if err != nil {
+		return "", err
+	}
+	return string(val), nil
+}
+
+func (prom *AlertItem) ToMessage() (message.Message, error) {
+	msg := message.Message{}
+
+	if !utils.IsEmptyString(prom.Annotations.Summary) {
+		msg.Summary.Default = prom.Annotations.Summary
+	}
+	if !utils.IsEmptyString(prom.Annotations.Description) {
+		msg.Description.Default = prom.Annotations.Description
+	}
+
+	if len(prom.Labels) != 0 {
+		msg.Labels = make(map[string]message.I10nField, len(prom.Labels))
+		for k, v := range prom.Labels {
+			msg.Labels[k] = message.I10nField{
+				Default: v,
+			}
+		}
+	}
+	msg.Status.Default = prom.Status
+
+	st, err := time.Parse(time.RFC3339Nano, prom.StartsAt)
+	if err != nil {
+		return msg, err
+	}
+	msg.StartAt = st
+
+	et, err := time.Parse(time.RFC3339Nano, prom.StartsAt)
+	if err != nil {
+		return msg, err
+	}
+	msg.EndAt = et
+	return msg, nil
 }
