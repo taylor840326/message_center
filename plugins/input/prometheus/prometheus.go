@@ -28,7 +28,16 @@ type PrometheusAlertMessage struct {
 	Alerts []AlertItem `json:"alerts"`
 }
 
-func (prom *AlertItem) ToString() (string, error) {
+func NewPrometheusInputProcessor(context []byte) (*PrometheusAlertMessage, error) {
+	msg := &PrometheusAlertMessage{}
+	err := json.Unmarshal(context, msg)
+	if err != nil {
+		return nil, err
+	}
+	return msg, nil
+}
+
+func (prom *PrometheusAlertMessage) ToString() (string, error) {
 	val, err := json.Marshal(prom)
 	if err != nil {
 		return "", err
@@ -36,36 +45,42 @@ func (prom *AlertItem) ToString() (string, error) {
 	return string(val), nil
 }
 
-func (prom *AlertItem) ToMessage() (message.Message, error) {
-	msg := message.Message{}
+func (prom *PrometheusAlertMessage) ToMessages() ([]message.Message, error) {
+	alerts := prom.Alerts
+	messages := make([]message.Message, len(alerts))
 
-	if !utils.IsEmptyString(prom.Annotations.Summary) {
-		msg.Summary.Default = prom.Annotations.Summary
-	}
-	if !utils.IsEmptyString(prom.Annotations.Description) {
-		msg.Description.Default = prom.Annotations.Description
-	}
+	for _, alert := range alerts {
+		msg := message.Message{}
+		if !utils.IsEmptyString(alert.Annotations.Summary) {
+			msg.Summary.Default = alert.Annotations.Summary
+		}
+		if !utils.IsEmptyString(alert.Annotations.Description) {
+			msg.Description.Default = alert.Annotations.Description
+		}
 
-	if len(prom.Labels) != 0 {
-		msg.Labels = make(map[string]message.I10nField, len(prom.Labels))
-		for k, v := range prom.Labels {
-			msg.Labels[k] = message.I10nField{
-				Default: v,
+		if len(alert.Labels) != 0 {
+			msg.Labels = make(map[string]message.I10nField, len(alert.Labels))
+			for k, v := range alert.Labels {
+				msg.Labels[k] = message.I10nField{
+					Default: v,
+				}
 			}
 		}
-	}
-	msg.Status.Default = prom.Status
+		msg.Status.Default = alert.Status
 
-	st, err := time.Parse(time.RFC3339Nano, prom.StartsAt)
-	if err != nil {
-		return msg, err
-	}
-	msg.StartAt = st
+		st, err := time.Parse(time.RFC3339Nano, alert.StartsAt)
+		if err != nil {
+			return []message.Message{}, err
+		}
+		msg.StartAt = st
 
-	et, err := time.Parse(time.RFC3339Nano, prom.StartsAt)
-	if err != nil {
-		return msg, err
+		et, err := time.Parse(time.RFC3339Nano, alert.StartsAt)
+		if err != nil {
+			return []message.Message{}, err
+		}
+		msg.EndAt = et
+
+		messages = append(messages, msg)
 	}
-	msg.EndAt = et
-	return msg, nil
+	return messages, nil
 }

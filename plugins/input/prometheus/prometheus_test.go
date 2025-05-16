@@ -20,8 +20,11 @@ func TestAlertItemToString(t *testing.T) {
 		fmt.Println(err.Error())
 		return
 	}
-	for _, alert := range prometheus_message.Alerts {
-		msg, _ := alert.ToMessage()
-		fmt.Println(msg)
+
+	msg, err := prometheus_message.ToMessages()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
 	}
+	fmt.Println(msg)
 }

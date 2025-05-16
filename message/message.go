@@ -40,10 +40,18 @@ type I10nField struct {
 }
 
 type Message struct {
-	Summary     I10nField            `json:"summary"`
-	Description I10nField            `json:"description"`
-	Labels      map[string]I10nField `json:"labels"`
-	Status      I10nField            `json:"status"`
-	StartAt     time.Time            `json:"start_at"`
-	EndAt       time.Time            `json:"end_at"`
+	// Summary contains the brief overview of the message
+	Summary I10nField `json:"summary"`
+	// Description contains the detailed explanation of the message
+	Description I10nField `json:"description"`
+	// Labels stores key-value pairs of metadata about the message
+	Labels map[string]I10nField `json:"labels"`
+	// Status indicates the current state of the message (e.g. firing, resolved)
+	Status I10nField `json:"status"`
+	// Severity represents the urgency/importance level of the message (e.g. critical, warning, info)
+	Severity I10nField `json:"severity"`
+	// StartAt is the timestamp when the message was first created/triggered
+	StartAt time.Time `json:"start_at"`
+	// EndAt is the timestamp when the message was resolved/ended
+	EndAt time.Time `json:"end_at"`
 }

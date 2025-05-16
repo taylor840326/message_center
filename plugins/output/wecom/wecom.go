@@ -2,40 +2,53 @@ package wecom
 
 import (
 	"bytes"
+	"message_center/message"
+	"message_center/template"
 
 	botApi "github.com/electricbubble/wecom-bot-api"
 )
 
-func SendWecomMessage() {
-	bot := botApi.NewWeComBot("")
-	alerts := ""
-	if len(alerts) == 0 {
-	}
+type WeCom struct {
+	RobotKey string            `json:"robot_key"`
+	Messages []message.Message `json:"messages"`
+}
 
-	// Process alerts and format them into markdown message
-	// Each alert contains annotations and labels with details about the alert
-	// We'll format these into a readable message with namespace, node, and pod info
+func NewWeCom(messages []message.Message) (*WeCom, error) {
+	return &WeCom{
+		RobotKey: "a15aeacd-2f81-49e7-ad90-2293f1a086d5",
+		Messages: messages,
+	}, nil
+}
+
+func (wecom *WeCom) Output() error {
+	bot := botApi.NewWeComBot(wecom.RobotKey)
+
+	// 企业微信消息模板
+	const wecomTemplate = `标题: {{.Description.Default}} 
+		> 命名空间: <font color="comment">{{.Labels.namespace.Default}}</font>
+		> 服务器节点: <font color="comment">{{.Labels.node.Default}}</font>
+		> pod名称: <font color="comment">{{.Labels.pod.Default}}</font>
+		> 状态: <font color="info">{{.Status.Default}}</font>
+		> 严重程度: <font color="info">{{.Severity}}</font>
+		`
+
 	content := bytes.NewBufferString("")
-	// for _, alert := range alerts {
-	// 	if len(content.String()) > 4000 {
-	// 		content.WriteString(md.QuoteText("更多: " + md.CommentText("更多信息请查看日志")))
-	// 		content.WriteString("\n")
-	// 		continue
-	// 	}
-	// content.WriteString("标题: " + alert.Annotations.Description + " \n")
-	// content.WriteString(md.QuoteText("命名空间: " + md.CommentText(alert.Labels.Namespace)))
-	// content.WriteString(md.QuoteText("服务器节点: " + md.CommentText(alert.Labels.Node)))
-	// content.WriteString(md.QuoteText("pod名称: " + md.CommentText(alert.Labels.Pod)))
-	// switch alert.Status {
-	// case "firing":
-	// 	content.WriteString(md.QuoteText("状态: " + md.WarningText(alert.Status)))
-	// case "resolved":
-	// 	content.WriteString(md.QuoteText("状态: " + md.InfoText(alert.Status)))
-	// default:
-	// 	content.WriteString(md.QuoteText("状态: " + md.CommentText(alert.Status)))
-	// }
-	// 	content.WriteString("\n")
-	// }
+	for _, message := range wecom.Messages {
+		// 获取文本渲染器（因为企业微信消息实际上是文本格式）
+		renderer, err := template.GetRenderer(wecomTemplate, template.FormatText)
+		if err != nil {
+			return err
+		}
+
+		// 渲染消息
+		result, err := renderer.Render(message)
+		if err != nil {
+			return err
+		}
+		content.WriteString(result)
+		content.WriteString("\n")
+	}
 	_ = bot.PushMarkdownMessage(content.String())
 
+	return nil
 }
