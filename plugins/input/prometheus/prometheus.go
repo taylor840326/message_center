@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"message_center/message"
 	"message_center/utils"
+	"strings"
 	"time"
 )
 
@@ -47,7 +48,7 @@ func (prom *PrometheusAlertMessage) ToString() (string, error) {
 
 func (prom *PrometheusAlertMessage) ToMessages() ([]message.Message, error) {
 	alerts := prom.Alerts
-	messages := make([]message.Message, len(alerts))
+	messages := make([]message.Message, 0)
 
 	for _, alert := range alerts {
 		msg := message.Message{}
@@ -63,6 +64,9 @@ func (prom *PrometheusAlertMessage) ToMessages() ([]message.Message, error) {
 			for k, v := range alert.Labels {
 				msg.Labels[k] = message.I10nField{
 					Default: v,
+				}
+				if strings.Compare("severity", k) == 0 {
+					msg.Severity.Default = v
 				}
 			}
 		}

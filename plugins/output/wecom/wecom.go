@@ -29,7 +29,7 @@ func (wecom *WeCom) Output() error {
 		> 服务器节点: <font color="comment">{{.Labels.node.Default}}</font>
 		> pod名称: <font color="comment">{{.Labels.pod.Default}}</font>
 		> 状态: <font color="info">{{.Status.Default}}</font>
-		> 严重程度: <font color="info">{{.Severity}}</font>
+		> 严重程度: <font color="info">{{.Severity.Default}}</font>
 		`
 
 	content := bytes.NewBufferString("")
