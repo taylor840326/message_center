@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 
 	"message_center/plugins/input"
@@ -32,8 +32,8 @@ func main() {
 
 	r := gin.Default()
 	r.POST("/adapter/wx", func(c *gin.Context) {
-		// body, _ := io.ReadAll(c.Request.Body)
-		body, _ := ioutil.ReadFile("./plugins/input/prometheus/body.json")
+		body, _ := io.ReadAll(c.Request.Body)
+		// body, _ := ioutil.ReadFile("./plugins/input/prometheus/body.json")
 		logger.Info("Received alert message body",
 			zap.String("body", string(body)))
 
