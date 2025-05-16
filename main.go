@@ -75,6 +75,16 @@ func main() {
 			default:
 				content.WriteString(md.QuoteText("状态: " + md.CommentText(alert.Status)))
 			}
+			switch alert.Labels.Severity {
+			case "critical":
+				content.WriteString(md.QuoteText("严重程度: " + md.WarningText(alert.Labels.Severity)))
+			case "warning":
+				content.WriteString(md.QuoteText("严重程度: " + md.WarningText(alert.Labels.Severity)))
+			case "info":
+				content.WriteString(md.QuoteText("严重程度: " + md.InfoText(alert.Labels.Severity)))
+			default:
+				content.WriteString(md.QuoteText("严重程度: " + md.CommentText(alert.Labels.Severity)))
+			}
 			content.WriteString("\n")
 		}
 		logger.Info("Formatted markdown message content",
